@@ -34,13 +34,15 @@ def receive_message():
     # message = request.get_data().decode('utf-8')
     data = request.get_data()
     message = urllib.parse.unquote_plus(data.decode('utf-8'))
-
+    ##print("msg: ", message)
     data = json.loads(message)
+    ##print("data: ", data)
     if data is None:
+        ##print("No data receved")
         return "No data received", 400
     try:
         content = data['content']
-        # print(f'Received message: {message}, with data: {content}')
+        print(f'Received message: {message}, with data: {content}')
         
         mode = content['Mode']
         left_joy = content['leftJoystick']
@@ -48,6 +50,7 @@ def receive_message():
         publish_joy(mode, left_joy, right_joy)
         return content, 200
     except:
+        print("invalid shit")
         return "Invalid data received", 400
 
 def publish_joy(mode, left_joy, right_joy):
