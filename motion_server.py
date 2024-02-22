@@ -17,7 +17,8 @@ log.setLevel(logging.ERROR)
 
 # Create an app instance
 app = Flask(__name__)
-cors = CORS(app)
+cors = CORS(app, methods="*", allow_headers="Content-Type")
+# cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.logger.removeHandler(default_handler)
 joystick_left_publisher = rospy.Publisher('/VR/joy_left', Joy, queue_size=1)
@@ -35,34 +36,63 @@ def receive_message():
     message = urllib.parse.unquote_plus(data.decode('utf-8'))
 
     data = json.loads(message)
-    content = data['content']
-    # print(f'Received message: {message}, with data: {content}')
-    
-    # Print the message to the console
-    # print(f'Received message: {message}, with data: {content}')
-    publish_joy(content)
-    # Return a response
-    # return 'OK Homie, we da music', 200
-    return content, 200
+    if data is None:
+        return "No data received", 400
+    try:
+        content = data['content']
+        # print(f'Received message: {message}, with data: {content}')
+        
+        mode = content['Mode']
+        left_joy = content['leftJoystick']
+        right_joy = content['rightJoystick']
+        publish_joy(mode, left_joy, right_joy)
+        return content, 200
+    except:
+        return "Invalid data received", 400
 
-def publish_joy(data):
+def publish_joy(mode, left_joy, right_joy):
     # data = (x,y)
-    if data is not None:
-        data = data.split(',')
-        try:
-            x = data[0][1:]
-            z = data[1][:-1]
-            joy_msg = Joy()
-            joy_msg.header.stamp = rospy.Time.now()
-            # logging.error("X: ", x, " Z: ", z)
-            print("X: ", x, " Z: ", z)
-            joy_msg.axes = [float(z), 0,0, 0, 0, float(x)]
-            # print("Publishing Joy Message: ", joy_msg.axes)
-            joystick_left_publisher.publish(joy_msg)
-            joystick_right_publisher.publish(joy_msg)
-            joystick_mode_publisher.publish(joy_msg)
-        except:
-            print("Error in parsing data")
+    try:
+        send = True
+        left_x = float(left_joy['x'])
+        left_y = float(left_joy['y'])
+        right_x = float(right_joy['x'])
+        right_y = float(right_joy['y'])  
+        left_joy_msg = Joy()
+        left_joy_msg.header.stamp = rospy.Time.now()
+        left_joy_msg.axes = [left_x,left_y,0, 0, 0,]
+        right_joy_msg = Joy()
+        right_joy_msg.header.stamp = rospy.Time.now()
+        right_joy_msg.axes = [right_x,right_y,0, 0, 0,]
+        
+        
+        mode_out = String()
+
+        
+        ## Mode: 0 == standing
+        ## Mode: 1 == walking
+        if int(mode) == 0:
+            mode_out.data = "standing"
+        elif int(mode) == 1:
+            mode_out.data = "walking"
+        else:
+            send = False
+            
+        if(send == False):
+            # print("Invalid data received")
+            return
+        
+        # print(f'Left Joy: {left_x}, {left_y}')
+        # print(f'Right Joy: {right_x}, {right_y}')
+        # print(f'Mode: {mode_out.data}')
+        
+        
+        joystick_left_publisher.publish(left_joy_msg)
+        joystick_right_publisher.publish(right_joy_msg)
+        joystick_mode_publisher.publish(mode_out)
+    except Exception as e:
+        # print("Error in parsing data: ", e)
+        return e
 
 
 # Run the app
