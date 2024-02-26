@@ -69,24 +69,24 @@ def publish_joy(mode, left_joy, right_joy):
         left_joy_msg = Joy()
         left_joy_msg.header.stamp = rospy.Time.now()
 
-        if left_x == prev_left_x & left_y == prev_left_y:
-            left_x = 0.0
-            left_y = 0.0
+        # if left_x == prev_left_x & left_y == prev_left_y:
+        #     left_x = 0.0
+        #     left_y = 0.0
 
         left_joy_msg.axes = [left_x,left_y,0, 0, 0,]
-        prev_left_x = left_x
-        prev_left_y = left_y
+        # prev_left_x = left_x
+        # prev_left_y = left_y
 
         right_joy_msg = Joy()
         right_joy_msg.header.stamp = rospy.Time.now()     
 
-        if right_x == prev_right_x & right_y == prev_right_y:
-            right_x = 0.0
-            right_y = 0.0
+        # if right_x == prev_right_x & right_y == prev_right_y:
+        #     right_x = 0.0
+        #     right_y = 0.0
 
         right_joy_msg.axes = [right_x,right_y,0, 0, 0,]
-        prev_right_x = right_x
-        prev_right_y = right_y
+        # prev_right_x = right_x
+        # prev_right_y = right_y
         
         mode_out = String()
 
