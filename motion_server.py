@@ -26,6 +26,11 @@ joystick_right_publisher = rospy.Publisher('/VR/joy_right', Joy, queue_size=1)
 joystick_mode_publisher = rospy.Publisher('/VR/joy_mode', String, queue_size=1)
 rospy.init_node('motion_server', anonymous=True)
 
+#Store previous x and y values
+prev_left_x = 0
+prev_left_y = 0
+prev_right_x = 0
+prev_right_y = 0
 # Define a route for POST requests
 @app.route('/', methods=['POST'])
 @cross_origin()
@@ -60,14 +65,28 @@ def publish_joy(mode, left_joy, right_joy):
         left_x = float(left_joy['x'])
         left_y = float(left_joy['y'])
         right_x = float(right_joy['x'])
-        right_y = float(right_joy['y'])  
+        right_y = float(right_joy['y']) 
         left_joy_msg = Joy()
         left_joy_msg.header.stamp = rospy.Time.now()
+
+        if left_x == prev_left_x & left_y == prev_left_y:
+            left_x = 0
+            left_y = 0
+            
         left_joy_msg.axes = [left_x,left_y,0, 0, 0,]
+        prev_left_x = left_x
+        prev_left_y = left_y
+
         right_joy_msg = Joy()
-        right_joy_msg.header.stamp = rospy.Time.now()
+        right_joy_msg.header.stamp = rospy.Time.now()     
+
+        if right_x == prev_right_x & right_y == prev_right_y:
+            right_x = 0
+            right_y = 0
+
         right_joy_msg.axes = [right_x,right_y,0, 0, 0,]
-        
+        prev_right_x = right_x
+        prev_right_y = right_y
         
         mode_out = String()
 
