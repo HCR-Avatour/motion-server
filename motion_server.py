@@ -47,7 +47,7 @@ def receive_message():
         return "No data received", 400
     try:
         content = data['content']
-        print(f'Received message: {message}, with data: {content}')
+        # print(f'Received message: {message}, with data: {content}')
         
         mode = content['Mode']
         left_joy = content['leftJoystick']
@@ -104,9 +104,9 @@ def publish_joy(mode, left_joy, right_joy):
             # print("Invalid data received")
             return
         
-        # print(f'Left Joy: {left_x}, {left_y}')
-        # print(f'Right Joy: {right_x}, {right_y}')
-        # print(f'Mode: {mode_out.data}')
+        print(f'Left Joy: {left_x}, {left_y}')
+        print(f'Right Joy: {right_x}, {right_y}')
+        print(f'Mode: {mode_out.data}')
         
         
         joystick_left_publisher.publish(left_joy_msg)
